@@ -1,5 +1,6 @@
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,25 +13,34 @@ public class Main {
     static String mainURL = "https://pokeapi.co/api/v2/pokemon?limit=30";
 
     public static void main(String[] args) throws IOException {
-        URL url = new URL(mainURL);
-        // Get base object from given URL in task
-        JSONObject json_object = JSONHandler.getJsonFromURL(url);
-        // Get an JSONArray including names and URL information of pokemons
-        JSONArray results_json_array = JSONHandler.extractResults(json_object);
-        // Place names and URLs to HashMap to make everything clear
-        HashMap<String, String> pokeUrlMap = JSONHandler.extractPokeUrlMapFromResults(results_json_array);
-
-        List<String> normalPokemons = findNormalPokemons(pokeUrlMap);
-        System.out.println(normalPokemons);
+        System.out.println("Pokemons with normal attribute are: ");
+        System.out.println(findNormalPokemons());
     }
 
     /**
      * findNormalPokemons
      * Finds pokemons with normal attribute or one of their attribute is normal
-     * @param pokeUrlMap HashMap of pokemons including their name and base url
+     *
      * @return List of pokemon names including normal attribute
      */
-    public static List<String> findNormalPokemons(HashMap<String, String> pokeUrlMap) {
+    public static List<String> findNormalPokemons() {
+        URL url;
+        JSONObject json_object = null;
+        // Get base object from given URL in task
+        try {
+            url = new URL(mainURL);
+            json_object = JSONHandler.getJsonFromURL(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Get an JSONArray including names and URL information of pokemons
+        assert json_object != null;
+        JSONArray results_json_array = JSONHandler.extractResults(json_object);
+        // Place names and URLs to HashMap to make everything clear
+        assert results_json_array != null;
+        HashMap<String, String> pokeUrlMap = JSONHandler.extractPokeUrlMapFromResults(results_json_array);
+
         List<String> returnList = new ArrayList<>();
 
         // Iterate through all name/url combinations to check pokemon is normal or not
@@ -46,6 +56,7 @@ public class Main {
             }
             try {
                 // Get current Pokemon's url page json
+                assert pokeURL != null;
                 pokeObject = JSONHandler.getJsonFromURL(pokeURL);
                 // Get types object from Json document
                 pokeTypes = JSONHandler.extractTypes(pokeObject);
